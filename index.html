@@ -49,7 +49,7 @@ body::after{
   mix-blend-mode:multiply;
 }
 .vignette{position:fixed;inset:0;z-index:55;pointer-events:none;box-shadow:inset 0 0 320px rgba(0,0,0,0.9)}
-.wrap{position:relative;z-index:5;padding:14px 18px 0}
+.wrap{position:relative;z-index:5;padding:14px 18px 58px}
 /* HEADER */
 header{
   display:flex;align-items:center;justify-content:space-between;
@@ -161,7 +161,7 @@ header{
 .mtg .n{font-size:11px;color:#eafcff;margin:2px 0}
 .mtg .x{font-size:9px;color:var(--text-dim);line-height:1.4}
 /* ticker */
-.ticker{margin:14px 0 16px;border:1px solid var(--panel-line);background:rgba(0,20,32,0.7);border-radius:6px;overflow:hidden;display:flex;align-items:center;height:38px}
+.ticker{position:fixed;left:0;right:0;bottom:0;z-index:58;margin:0;border:1px solid var(--panel-line);border-left:0;border-right:0;border-bottom:0;border-radius:0;background:rgba(0,20,32,0.94);overflow:hidden;display:flex;align-items:center;height:38px;box-shadow:0 -4px 20px rgba(0,0,0,0.6)}
 .ticker .lab{background:var(--red);color:#fff;font-family:'Orbitron';font-size:10px;letter-spacing:2px;padding:0 14px;height:100%;display:flex;align-items:center;box-shadow:0 0 14px rgba(255,77,94,.4);white-space:nowrap}
 .ticker .move{white-space:nowrap;animation:scroll 48s linear infinite;font-family:'Share Tech Mono';font-size:12px;color:var(--amber);padding-left:100%}
 .ticker .move b{color:var(--cyan)}
@@ -219,12 +219,15 @@ scrollbar-width:thin;
 /* center column: agenda hugs, heatmap grows to fill the blank (widget fills box = no inner padding) */
 .col>.panel.hm-center{flex:1 1 auto;min-height:360px}
 .col>.panel.hm-center>.tv-box.tv-heat{flex:1 1 auto;min-height:0;height:auto}
+/* right column: calendar grows to fill any slack (widget fills box = no inner padding) */
+.grid>.col:nth-of-type(3)>.panel:last-child{flex:1 1 auto;min-height:0}
+.grid>.col:nth-of-type(3)>.panel:last-child>.tv-box.tv-cal{flex:1 1 auto;min-height:340px;height:auto}
 /* dense deck: two rows, panels hug content so no internal padding */
-.igrid{grid-template-columns:1fr 1fr 1fr 1fr;align-items:start;margin-top:14px}
+.igrid{grid-template-columns:0.8fr 1.3fr 1.3fr 1fr;align-items:start;margin-top:14px}
 .igrid3{grid-template-columns:1.25fr 1.25fr 1fr;align-items:start}
 .igrid>.panel,.igrid3>.panel{display:flex;flex-direction:column;min-height:0}
 .igrid>.panel>.tv-box,.igrid3>.panel>.tv-box{flex:0 0 auto}
-.tv-vix{height:210px}
+.tv-vix{height:300px}
 .tv-news,.tv-fx{height:300px}
 #marketHours,#weatherBoard,#quakeBoard{display:block}
 #marketHours .mh,#weatherBoard .wx{padding:6px 4px}
@@ -262,7 +265,7 @@ scrollbar-width:thin;
     <div class="tradingview-widget-container">
       <div class="tradingview-widget-container__widget"></div>
       <script type="text/javascript" src="https://s3.tradingview.com/external-embedding/embed-widget-ticker-tape.js" async>
-      {"symbols":[{"description":"日経225","proName":"TVC:NI225"},{"description":"TOPIX","proName":"TVC:TOPIX"},{"description":"USD/JPY","proName":"FX:USDJPY"},{"description":"S&P500","proName":"SP:SPX"},{"description":"NASDAQ100","proName":"NASDAQ:NDX"},{"description":"NYダウ","proName":"DJ:DJI"},{"description":"米10年債","proName":"TVC:US10Y"},{"description":"金","proName":"TVC:GOLD"},{"description":"WTI原油","proName":"TVC:USOIL"},{"description":"BTC/USD","proName":"BITSTAMP:BTCUSD"}],"showSymbolLogo":true,"isTransparent":true,"displayMode":"compact","colorTheme":"dark","locale":"ja"}
+      {"symbols":[{"description":"日経225","proName":"TVC:NI225"},{"description":"TOPIX","proName":"TVC:TOPIX"},{"description":"USD/JPY","proName":"FX:USDJPY"},{"description":"S&P500","proName":"SP:SPX"},{"description":"NASDAQ100","proName":"NASDAQ:NDX"},{"description":"NYダウ","proName":"DJ:DJI"},{"description":"米10年債","proName":"TVC:US10Y"},{"description":"金","proName":"TVC:GOLD"},{"description":"WTI原油","proName":"TVC:USOIL"},{"description":"BTC/USD","proName":"BITSTAMP:BTCUSD"}],"showSymbolLogo":true,"isTransparent":true,"displayMode":"regular","colorTheme":"dark","locale":"ja"}
       </script>
     </div>
   </div>
@@ -294,6 +297,18 @@ scrollbar-width:thin;
         <div class="ph"><h2>TASK STATUS</h2><span class="tag">タスク進捗</span></div>
         <div id="taskList"></div>
       </div>
+      <div class="panel">
+        <div class="ph"><h2>MARKET HOURS</h2><span class="tag">世界市場の開閉</span></div>
+        <div id="marketHours"></div>
+      </div>
+      <div class="panel">
+        <div class="ph"><h2>HUB WEATHER</h2><span class="tag">主要拠点の天気</span></div>
+        <div id="weatherBoard"><div style="color:var(--text-dim);font-size:10px;padding:8px">取得中...</div></div>
+      </div>
+      <div class="panel">
+        <div class="ph"><h2>SEISMIC ALERT</h2><span class="tag">災害アラート // M4.5+ 24h</span></div>
+        <div id="quakeBoard"><div style="color:var(--text-dim);font-size:10px;padding:8px">取得中...</div></div>
+      </div>
     </div>
 
     <!-- CENTER COLUMN -->
@@ -321,7 +336,7 @@ scrollbar-width:thin;
         <div class="ph"><h2>LIVE ECONOMIC NEWS</h2><span class="tag">経済ニュース生中継</span></div>
         <div class="video-box">
           <div class="live-badge">● LIVE</div>
-          <iframe id="liveNews" src="https://www.youtube.com/embed/live_stream?channel=UCIALMKvObZNtJ6AmdCLP7Lg&autoplay=1&mute=1" allow="autoplay; encrypted-media; picture-in-picture" allowfullscreen></iframe>
+          <iframe id="liveNews" src="https://www.youtube.com/embed/QB5BNdBFujE?autoplay=1&mute=1" allow="autoplay; encrypted-media; picture-in-picture" allowfullscreen></iframe>
         </div>
         <div style="font-family:'Share Tech Mono';font-size:9px;color:var(--text-dim);margin-top:6px;letter-spacing:1px">SOURCE: BLOOMBERG GLOBAL NEWS // 自動再生されない場合は再生ボタンを押してください</div>
       </div>
@@ -365,21 +380,6 @@ scrollbar-width:thin;
       <div class="tv-credit">VIX↑＝警戒 ／ VIX↓＝楽観</div>
     </div>
     <div class="panel">
-      <div class="ph"><h2>MARKET HOURS</h2><span class="tag">世界市場の開閉</span></div>
-      <div id="marketHours"></div>
-    </div>
-    <div class="panel">
-      <div class="ph"><h2>HUB WEATHER</h2><span class="tag">主要拠点の天気</span></div>
-      <div id="weatherBoard"><div style="color:var(--text-dim);font-size:10px;padding:8px">取得中...</div></div>
-    </div>
-    <div class="panel">
-      <div class="ph"><h2>SEISMIC ALERT</h2><span class="tag">災害アラート // M4.5+ 24h</span></div>
-      <div id="quakeBoard"><div style="color:var(--text-dim);font-size:10px;padding:8px">取得中...</div></div>
-    </div>
-  </div>
-
-  <div class="igrid3">
-    <div class="panel">
       <div class="ph"><h2>NEWS WIRE</h2><span class="tag">経済ニュース見出し速報</span></div>
       <div class="tv-box tv-news"><div class="tradingview-widget-container"><div class="tradingview-widget-container__widget"></div><script type="text/javascript" src="https://s3.tradingview.com/external-embedding/embed-widget-timeline.js" async>
       {"feedMode":"market","market":"index","isTransparent":true,"displayMode":"regular","colorTheme":"dark","locale":"ja","width":"100%","height":"100%"}
@@ -392,8 +392,8 @@ scrollbar-width:thin;
       </script></div></div>
     </div>
     <div class="vstack">
-      <div class="ivid"><div class="live-badge">● LIVE</div><iframe src="https://www.youtube.com/embed/live_stream?channel=UCEAZeUIeJs0IjQiqTCdVSDg&autoplay=1&mute=1" allow="autoplay; encrypted-media; picture-in-picture" allowfullscreen></iframe><div class="vlabel">YAHOO FINANCE</div></div>
-      <div class="ivid"><div class="live-badge">● LIVE</div><iframe src="https://www.youtube.com/embed/live_stream?channel=UCoMdktPbSTixAyNGwb-UYkQ&autoplay=1&mute=1" allow="autoplay; encrypted-media; picture-in-picture" allowfullscreen></iframe><div class="vlabel">SKY NEWS</div></div>
+      <div class="ivid"><div class="live-badge">● LIVE</div><iframe src="https://www.youtube.com/embed/KQp-e_XQnDE?autoplay=1&mute=1" allow="autoplay; encrypted-media; picture-in-picture" allowfullscreen></iframe><div class="vlabel">YAHOO FINANCE</div></div>
+      <div class="ivid"><div class="live-badge">● LIVE</div><iframe src="https://www.youtube.com/embed/YDvsBbKfLPA?autoplay=1&mute=1" allow="autoplay; encrypted-media; picture-in-picture" allowfullscreen></iframe><div class="vlabel">SKY NEWS</div></div>
     </div>
   </div>
 
