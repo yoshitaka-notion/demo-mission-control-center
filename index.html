@@ -210,31 +210,29 @@ scrollbar-width:thin;
 .qk .pl{color:var(--text)}
 .qk .tm{color:var(--text-dim);font-family:'Share Tech Mono';font-size:9px;margin-top:2px}
 @media(max-width:1100px){.grid{grid-template-columns:1fr}.igrid,.igrid3,.igrid2,.vwall{grid-template-columns:1fr}}
-/* === NO-BLANK LAYOUT: fill columns & panels === */
-.grid{align-items:start}
+/* === LAYOUT v3: governance under news, heatmap fills center, dense deck === */
+.grid{align-items:stretch}
 .col>.panel{display:flex;flex-direction:column}
 .grid>.col:nth-of-type(2)>.map-panel{flex:0 0 auto;min-height:0}
 .grid>.col:nth-of-type(2) #map{height:auto;flex:0 0 auto;display:block}
 .video-box{flex:0 0 auto}
-.igrid{grid-template-columns:2fr 1fr;grid-template-rows:1fr 1fr;margin-top:14px}
-.igrid3{grid-template-columns:1fr 1fr 1fr}
-.igrid,.igrid3,.igrid2{align-items:stretch}
-.igrid>.panel:nth-child(1){grid-column:1;grid-row:1 / span 2}
-.igrid>.panel:nth-child(2){grid-column:2;grid-row:1}
-.igrid>.panel:nth-child(3){grid-column:2;grid-row:2}
-.igrid>.panel,.igrid3>.panel,.igrid2>.panel{display:flex;flex-direction:column;min-height:0}
-.igrid>.panel>.tv-box,.igrid3>.panel>.tv-box{flex:1 1 auto;min-height:0}
-.tv-heat{height:480px}
-.tv-vix{height:auto}
-.tv-news,.tv-fx{height:340px}
-#marketHours,#weatherBoard,#quakeBoard{flex:1 1 auto;display:flex;flex-direction:column}
-#marketHours .mh,#weatherBoard .wx{flex:1 1 0;padding:6px 4px}
-#quakeBoard .qk{flex:1 1 0;display:flex;flex-direction:column;justify-content:center;padding:5px 4px}
-.igrid2>.panel{min-height:0}
-.vstack{display:flex;flex-direction:column;gap:14px;min-height:0}
-.vstack>.ivid{flex:1 1 0;position:relative;border:1px solid rgba(255,77,94,0.35);border-radius:5px;overflow:hidden;background:#000;box-shadow:0 0 12px rgba(255,77,94,0.12);min-height:120px}
+/* center column: agenda hugs, heatmap grows to fill the blank (widget fills box = no inner padding) */
+.col>.panel.hm-center{flex:1 1 auto;min-height:360px}
+.col>.panel.hm-center>.tv-box.tv-heat{flex:1 1 auto;min-height:0;height:auto}
+/* dense deck: two rows, panels hug content so no internal padding */
+.igrid{grid-template-columns:1fr 1fr 1fr 1fr;align-items:start;margin-top:14px}
+.igrid3{grid-template-columns:1.25fr 1.25fr 1fr;align-items:start}
+.igrid>.panel,.igrid3>.panel{display:flex;flex-direction:column;min-height:0}
+.igrid>.panel>.tv-box,.igrid3>.panel>.tv-box{flex:0 0 auto}
+.tv-vix{height:210px}
+.tv-news,.tv-fx{height:300px}
+#marketHours,#weatherBoard,#quakeBoard{display:block}
+#marketHours .mh,#weatherBoard .wx{padding:6px 4px}
+#quakeBoard .qk{padding:5px 4px}
+.vstack{display:flex;flex-direction:column;gap:12px;height:300px}
+.vstack>.ivid{flex:1 1 0;position:relative;border:1px solid rgba(255,77,94,0.35);border-radius:5px;overflow:hidden;background:#000;box-shadow:0 0 12px rgba(255,77,94,0.12)}
 .vstack>.ivid iframe{width:100%;height:100%;border:0;display:block}
-.vstack>.ivid .vlabel{padding:14px 8px 5px}
+.vstack>.ivid .vlabel{padding:8px 8px 4px}
 </style>
 </head>
 <body>
@@ -309,6 +307,12 @@ scrollbar-width:thin;
         <div class="ph"><h2>AGENDA LIVE FEED</h2><span class="tag">経営アジェンダ管理DB</span></div>
         <div class="feed" id="agendaFeed"></div>
       </div>
+      <div class="panel hm-center">
+        <div class="ph"><h2>EQUITY HEATMAP</h2><span class="tag">株式ヒートマップ // S&P500</span></div>
+        <div class="tv-box tv-heat"><div class="tradingview-widget-container"><div class="tradingview-widget-container__widget"></div><script type="text/javascript" src="https://s3.tradingview.com/external-embedding/embed-widget-stock-heatmap.js" async>
+      {"dataSource":"SPX500","blockSize":"market_cap_basic","blockColor":"change","grouping":"sector","locale":"ja","colorTheme":"dark","hasTopBar":false,"isDataSetEnabled":false,"isZoomEnabled":true,"hasSymbolTooltip":true,"isMonoSize":false,"width":"100%","height":"100%"}
+      </script></div></div>
+      </div>
     </div>
 
     <!-- RIGHT COLUMN -->
@@ -320,6 +324,10 @@ scrollbar-width:thin;
           <iframe id="liveNews" src="https://www.youtube.com/embed/live_stream?channel=UCIALMKvObZNtJ6AmdCLP7Lg&autoplay=1&mute=1" allow="autoplay; encrypted-media; picture-in-picture" allowfullscreen></iframe>
         </div>
         <div style="font-family:'Share Tech Mono';font-size:9px;color:var(--text-dim);margin-top:6px;letter-spacing:1px">SOURCE: BLOOMBERG GLOBAL NEWS // 自動再生されない場合は再生ボタンを押してください</div>
+      </div>
+      <div class="panel">
+        <div class="ph"><h2>GOVERNANCE LOG</h2><span class="tag">議事録タイムライン</span></div>
+        <div id="meetingTimeline"></div>
       </div>
       <div class="panel">
         <div class="ph"><h2>GLOBAL MARKETS</h2><span class="tag">REALTIME // 株価・為替・商品</span></div>
@@ -344,21 +352,11 @@ scrollbar-width:thin;
         </div>
         <div class="tv-credit">DATA: TradingView</div>
       </div>
-      <div class="panel">
-        <div class="ph"><h2>GOVERNANCE LOG</h2><span class="tag">議事録タイムライン</span></div>
-        <div id="meetingTimeline"></div>
-      </div>
     </div>
   </div>
 
-  <!-- INTEL GRID -->
+  <!-- INTEL DECK -->
   <div class="igrid">
-    <div class="panel">
-      <div class="ph"><h2>EQUITY HEATMAP</h2><span class="tag">株式ヒートマップ // S&P500</span></div>
-      <div class="tv-box tv-heat"><div class="tradingview-widget-container"><div class="tradingview-widget-container__widget"></div><script type="text/javascript" src="https://s3.tradingview.com/external-embedding/embed-widget-stock-heatmap.js" async>
-      {"dataSource":"SPX500","blockSize":"market_cap_basic","blockColor":"change","grouping":"sector","locale":"ja","colorTheme":"dark","hasTopBar":false,"isDataSetEnabled":false,"isZoomEnabled":true,"hasSymbolTooltip":true,"isMonoSize":false,"width":"100%","height":"100%"}
-      </script></div></div>
-    </div>
     <div class="panel">
       <div class="ph"><h2>FEAR INDEX // VIX</h2><span class="tag">恐怖指数・センチメント</span></div>
       <div class="tv-box tv-vix"><div class="tradingview-widget-container"><div class="tradingview-widget-container__widget"></div><script type="text/javascript" src="https://s3.tradingview.com/external-embedding/embed-widget-mini-symbol-overview.js" async>
@@ -369,6 +367,14 @@ scrollbar-width:thin;
     <div class="panel">
       <div class="ph"><h2>MARKET HOURS</h2><span class="tag">世界市場の開閉</span></div>
       <div id="marketHours"></div>
+    </div>
+    <div class="panel">
+      <div class="ph"><h2>HUB WEATHER</h2><span class="tag">主要拠点の天気</span></div>
+      <div id="weatherBoard"><div style="color:var(--text-dim);font-size:10px;padding:8px">取得中...</div></div>
+    </div>
+    <div class="panel">
+      <div class="ph"><h2>SEISMIC ALERT</h2><span class="tag">災害アラート // M4.5+ 24h</span></div>
+      <div id="quakeBoard"><div style="color:var(--text-dim);font-size:10px;padding:8px">取得中...</div></div>
     </div>
   </div>
 
@@ -388,17 +394,6 @@ scrollbar-width:thin;
     <div class="vstack">
       <div class="ivid"><div class="live-badge">● LIVE</div><iframe src="https://www.youtube.com/embed/live_stream?channel=UCEAZeUIeJs0IjQiqTCdVSDg&autoplay=1&mute=1" allow="autoplay; encrypted-media; picture-in-picture" allowfullscreen></iframe><div class="vlabel">YAHOO FINANCE</div></div>
       <div class="ivid"><div class="live-badge">● LIVE</div><iframe src="https://www.youtube.com/embed/live_stream?channel=UCoMdktPbSTixAyNGwb-UYkQ&autoplay=1&mute=1" allow="autoplay; encrypted-media; picture-in-picture" allowfullscreen></iframe><div class="vlabel">SKY NEWS</div></div>
-    </div>
-  </div>
-
-  <div class="igrid2">
-    <div class="panel">
-      <div class="ph"><h2>HUB WEATHER</h2><span class="tag">主要拠点の天気</span></div>
-      <div id="weatherBoard"><div style="color:var(--text-dim);font-size:10px;padding:8px">取得中...</div></div>
-    </div>
-    <div class="panel">
-      <div class="ph"><h2>SEISMIC ALERT</h2><span class="tag">災害アラート // M4.5+ 24h</span></div>
-      <div id="quakeBoard"><div style="color:var(--text-dim);font-size:10px;padding:8px">取得中...</div></div>
     </div>
   </div>
 
@@ -433,7 +428,7 @@ const TASKS = [
   {nm:'ERPベンダーRFPの作成',st:'未着手',dl:'2026-07-10'},
   {nm:'取締役会実効性評価の発注',st:'未着手',dl:'2026-07-20'},
   {nm:'サクセッション候補��要件の定義',st:'未着手',dl:'2026-07-25'},
-  {nm:'各��業ROICツリーの作成',st:'未着手',dl:'2026-08-15'},
+  {nm:'各���業ROICツリーの作成',st:'未着手',dl:'2026-08-15'},
   {nm:'株主還元方針のIR説明資料作成',st:'完了',dl:'2026-05-31'}
 ];
 
